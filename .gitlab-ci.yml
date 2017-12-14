@@ -1,0 +1,7 @@
+image: docker-registry-eu.mdevlab.com/images/maven-builder:master
+
+build:
+  stage: build
+  script:
+  - mvn clean install package appassembler:assemble assembly:single
+  - /usr/bin/openshift_build_push2 cmtk-bot "cloudapps1.mdevlab.com"
