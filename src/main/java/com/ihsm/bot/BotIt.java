@@ -85,6 +85,7 @@ public class BotIt implements ChatListener, ChatServiceListener {
 
             SymphonyClientConfig symphonyClientConfig = new SymphonyClientConfig(true);
 
+
             //Create an initialized client
             symClient = SymphonyClientFactory.getClient(
                     SymphonyClientFactory.TYPE.V4,symphonyClientConfig);

@@ -34,7 +34,7 @@ import java.util.Map;
 /**
  * LexItBot is an example of an integration with AWS LEX bots.  It acts as a simple relay between the Symphony endpoint and
  * a AWS Lex bot.  The idea here is to handle all input through Lex NLP engines and responses through Lambda.
- *
+ * <p>
  * <p>
  * <p>
  * REQUIRED VM Arguments or System Properties:
@@ -61,16 +61,43 @@ public class LexItBot implements ChatServiceListener {
     private SymphonyClient symClient;
 
     private LexItBotDetail lexItBotDetail = new LexItBotDetail();
+    private SymphonyClientConfig symphonyClientConfig;
 
+    public LexItBot() {
 
-    public LexItBot(){
-
-        this(System.getProperty("bot.name"), System.getProperty("bot.alias"));
+        init(null, null);
     }
 
 
-
     public LexItBot(String botName, String botAlias) {
+
+        init(botName, botAlias);
+
+    }
+
+    public static void main(String[] args) {
+
+        if (args.length == 2) {
+            new LexItBot(args[0], args[1]);
+        } else {
+
+
+            System.out.println("You need to provide a (lexbotname) (lexbotalias) to start");
+
+            new LexItBot();
+        }
+    }
+
+    //Start it up..
+    public void init(String botName, String botAlias) {
+
+        symphonyClientConfig = new SymphonyClientConfig(true);
+
+        if (botName == null || botAlias == null) {
+            botName = symphonyClientConfig.get("bot.name");
+            botAlias = symphonyClientConfig.get("bot.alias");
+        }
+
 
         lexItBotDetail.setBotName(botName);
         lexItBotDetail.setBotAlias(botAlias);
@@ -95,34 +122,12 @@ public class LexItBot implements ChatServiceListener {
 
         lexItBotDetail.setSessionAttributes(sessionAttributes);
 
-        init();
-
-    }
-
-    public static void main(String[] args) {
-
-        if(args.length == 2) {
-            new LexItBot(args[0], args[1]);
-        }else{
-
-
-            System.out.println("You need to provide a (lexbotname) (lexbotalias) to start");
-
-            new LexItBot();
-        }
-    }
-
-    //Start it up..
-    public void init() {
-
-
-        SymphonyClientConfig symphonyClientConfig = new SymphonyClientConfig(true);
 
         //Create an initialized client
         symClient = SymphonyClientFactory.getClient(
                 SymphonyClientFactory.TYPE.V4, symphonyClientConfig);
 
-        if(symClient!=null)
+        if (symClient != null)
             symClient.getChatService().addListener(this);
     }
 
@@ -130,7 +135,7 @@ public class LexItBot implements ChatServiceListener {
     @Override
     public void onNewChat(Chat chat) {
 
-        chat.addListener(new LexItBotRelay(symClient, lexItBotDetail));
+        chat.addListener(new LexItBotRelay(symClient, lexItBotDetail, symphonyClientConfig));
 
     }
 

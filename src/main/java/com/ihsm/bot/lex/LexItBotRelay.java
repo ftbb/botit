@@ -27,6 +27,7 @@ import com.amazonaws.services.lexruntime.AmazonLexRuntimeClientBuilder;
 import com.amazonaws.services.lexruntime.model.PostTextRequest;
 import com.amazonaws.services.lexruntime.model.PostTextResult;
 import org.symphonyoss.client.SymphonyClient;
+import org.symphonyoss.client.SymphonyClientConfig;
 import org.symphonyoss.client.exceptions.MessagesException;
 import org.symphonyoss.client.services.ChatListener;
 import org.symphonyoss.symphony.clients.model.SymMessage;
@@ -38,16 +39,21 @@ public class LexItBotRelay implements ChatListener {
 
     private SymphonyClient symClient;
     private LexItBotDetail lexItBotDetail;
+    private SymphonyClientConfig symphonyClientConfig;
 
-    private AWSCredentials credentials = new BasicAWSCredentials(System.getenv("S3_KEY_ID"), System.getenv("S3_ACCESS_KEY"));
-    private AmazonLexRuntime lexClient = AmazonLexRuntimeClientBuilder.standard().withRegion(Regions.US_EAST_1).withCredentials(new AWSStaticCredentialsProvider(credentials)).build();
+    private AWSCredentials credentials;
+    private AmazonLexRuntime lexClient ;
 
 
-
-    public LexItBotRelay(SymphonyClient symClient, LexItBotDetail lexItBotDetail) {
+    public LexItBotRelay(SymphonyClient symClient, LexItBotDetail lexItBotDetail, SymphonyClientConfig symphonyClientConfig) {
 
         this.symClient = symClient;
         this.lexItBotDetail = lexItBotDetail;
+        this.symphonyClientConfig = symphonyClientConfig;
+
+       credentials = new BasicAWSCredentials(symphonyClientConfig.get("s3.key.id"), symphonyClientConfig.get("s3.access.key"));
+       //credentials = new BasicAWSCredentials(System.getenv("S3_KEY_ID"), System.getenv("S3_ACCESS_KEY"));
+       lexClient = AmazonLexRuntimeClientBuilder.standard().withRegion(Regions.US_EAST_1).withCredentials(new AWSStaticCredentialsProvider(credentials)).build();
 
     }
 
